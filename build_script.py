@@ -8,13 +8,18 @@ def build():
         raise FileNotFoundError("serial_tool.ui not found in current directory")
     
     # PyInstaller配置
-    print("正在检查资源文件...")
+    # 设置控制台编码为UTF-8
+    import sys
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+    
+    print("[INFO] Checking resource files...")
     if not os.path.exists('serial_tool.ui'):
-        raise FileNotFoundError("serial_tool.ui文件未找到，请确保它在项目根目录")
+        raise FileNotFoundError("serial_tool.ui not found in project root")
     if os.path.exists('icon.ico'):
-        print("找到图标文件: icon.ico")
+        print("[OK] Found icon file: icon.ico")
     else:
-        print("警告: 未找到图标文件icon.ico")
+        print("[WARN] Icon file not found: icon.ico")
 
     params = [
         'serial_tool_2.py',
