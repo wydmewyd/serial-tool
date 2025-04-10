@@ -28,7 +28,8 @@ jobs:
         python build_script.py
         
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: serial-tool-windows
-        path: dist/serial_tool_2.exe
+        path: dist/*
+        if-no-files-found: error
