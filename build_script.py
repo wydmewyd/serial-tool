@@ -28,7 +28,9 @@ def build():
         '--add-data', 'serial_tool.ui:.',  # 修改分隔符为冒号(Windows兼容)
         '--icon=icon.ico' if os.path.exists('icon.ico') else '',
         '--clean',
-        '--noconfirm'
+        '--noconfirm',
+        '--hidden-import=serial.tools.list_ports',
+        '--hidden-import=serial.win32'
     ]
     print("PyInstaller参数:", params)
     

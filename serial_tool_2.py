@@ -123,9 +123,21 @@ class SerialTool(QMainWindow):
     def refresh_ports(self):
         """刷新可用串口列表"""
         self.portCombo.clear()
-        ports = serial.tools.list_ports.comports()
-        for port in ports:
-            self.portCombo.addItem(port.device, port.description)
+        try:
+            ports = serial.tools.list_ports.comports()
+            if not ports:
+                self.portCombo.addItem("未检测到串口设备", "")
+                print("未检测到串口设备，请检查:")
+                print("1. 设备是否已连接")
+                print("2. 驱动程序是否安装")
+                print("3. 设备管理器是否显示COM端口")
+            else:
+                for port in ports:
+                    desc = f"{port.device} - {port.description}" if port.description else port.device
+                    self.portCombo.addItem(desc, port.device)
+        except Exception as e:
+            self.portCombo.addItem("串口检测失败", "")
+            print(f"串口检测错误: {str(e)}")
     
     def toggle_serial(self):
         """打开/关闭串口"""
