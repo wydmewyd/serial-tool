@@ -70,27 +70,37 @@ class SerialTool(QMainWindow):
         
     def init_ui(self):
         """初始化用户界面"""
-        # 设置串口参数选项
+        # 设置串口参数选项 - 紧凑布局
         self.baudCombo.addItems(["9600", "19200", "38400", "57600", "115200", "230400", "460800", "921600"])
         self.baudCombo.setCurrentText("115200")
+        self.baudCombo.setMaximumWidth(120)
         
         self.dataBitsCombo.addItems(["5", "6", "7", "8"])
         self.dataBitsCombo.setCurrentText("8")
+        self.dataBitsCombo.setMaximumWidth(60)
         
         self.stopBitsCombo.addItems(["1", "1.5", "2"])
         self.stopBitsCombo.setCurrentText("1")
+        self.stopBitsCombo.setMaximumWidth(60)
         
         self.parityCombo.addItems(["无", "奇校验", "偶校验", "标记", "空格"])
         self.parityCombo.setCurrentText("无")
+        self.parityCombo.setMaximumWidth(80)
         
         # 设置时间格式选项
         self.timeFormatCombo.addItems([
             "%H:%M:%S",
-            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d %H:%M:%S", 
             "[%H:%M:%S]",
             "[%Y-%m-%d %H:%M:%S]"
         ])
         self.timeFormatCombo.setCurrentText("[%H:%M:%S]")
+        self.timeFormatCombo.setMaximumWidth(180)
+        
+        # 调整控件间距
+        self.portCombo.setMinimumHeight(30)
+        self.openBtn.setMinimumHeight(30)
+        self.refreshBtn.setMinimumHeight(30)
         
         # 设置历史记录自动换行
         self.historyList.setWordWrap(True)
@@ -150,7 +160,7 @@ class SerialTool(QMainWindow):
     
     def open_serial(self):
         """打开串口"""
-        port_name = self.portCombo.currentText()
+        port_name = self.portCombo.currentData()  # 获取实际端口名
         if not port_name:
             QMessageBox.warning(self, "警告", "请选择串口号!")
             return False
@@ -193,8 +203,17 @@ class SerialTool(QMainWindow):
             
             return True
             
+        except serial.SerialException as e:
+            error_msg = f"无法打开串口 {port_name}:\n{str(e)}\n\n"
+            error_msg += "可能原因:\n"
+            error_msg += "1. 端口已被其他程序占用\n"
+            error_msg += "2. 驱动程序未正确安装\n"
+            error_msg += "3. 设备已断开连接\n"
+            error_msg += "4. 需要管理员权限"
+            QMessageBox.critical(self, "串口错误", error_msg)
+            return False
         except Exception as e:
-            QMessageBox.critical(self, "错误", f"无法打开串口: {str(e)}")
+            QMessageBox.critical(self, "错误", f"发生未知错误: {str(e)}")
             return False
     
     def close_serial(self):
