@@ -19,12 +19,16 @@ class SerialThread(QThread):
         
     def run(self):
         while self.running and self.serial_port.is_open:
-            if self.serial_port.in_waiting:
-                try:
-                    data = self.serial_port.read(self.serial_port.in_waiting)
+            try:
+                # 增加读取超时和缓冲区大小
+                data = self.serial_port.read(1024)  # 读取最多1024字节
+                if data:  # 只有接收到数据时才发送信号
                     self.data_received.emit(data)
-                except Exception as e:
-                    print(f"串口读取错误: {e}")
+            except serial.SerialException as e:
+                print(f"串口读取错误: {e}")
+                break
+            except Exception as e:
+                print(f"其他错误: {e}")
     
     def stop(self):
         self.running = False
@@ -186,14 +190,17 @@ class SerialTool(QMainWindow):
             }
             parity = parity_map[self.parityCombo.currentText()]
             
-            # 创建串口对象
+            # 创建串口对象 - 添加硬件流控制禁用
             self.serial_port = serial.Serial(
                 port=port_name,
                 baudrate=baudrate,
                 bytesize=bytesize,
                 parity=parity,
                 stopbits=stopbits,
-                timeout=1
+                timeout=1,
+                xonxoff=False,  # 禁用软件流控制
+                rtscts=False,   # 禁用硬件(RTS/CTS)流控制
+                dsrdtr=False    # 禁用硬件(DSR/DTR)流控制
             )
             
             # 启动接收线程
