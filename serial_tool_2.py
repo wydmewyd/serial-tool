@@ -272,6 +272,11 @@ class SerialTool(QMainWindow):
             else:
                 display_text = display_data
             
+            # 检查是否已存在相同记录
+            for i in range(self.historyList.count()):
+                if self.historyList.item(i).text() == display_text:
+                    return  # 如果已存在相同记录，则不添加
+                    
             # 创建历史记录项
             item = QListWidgetItem(display_text)
             item.setData(QtCore.Qt.UserRole, data)  # 保存原始数据
@@ -289,11 +294,17 @@ class SerialTool(QMainWindow):
     def process_received_data(self, data):
         """处理接收到的数据"""
         try:
+            # 原始数据处理 - 不进行任何转换
+            raw_data = data
+            
             # 十六进制显示
             if self.hexDisplayCheck.isChecked():
-                display_data = " ".join(f"{b:02X}" for b in data)
+                display_data = " ".join(f"{b:02X}" for b in raw_data)
             else:
-                display_data = data.decode('utf-8', errors='replace')
+                try:
+                    display_data = raw_data.decode('utf-8')
+                except UnicodeDecodeError:
+                    display_data = " ".join(f"{b:02X}" for b in raw_data)
             
             # 添加时间戳
             if self.timestampCheck.isChecked():
